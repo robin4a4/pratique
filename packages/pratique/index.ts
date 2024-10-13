@@ -1,1 +1,1 @@
-export { Server } from "./src/server";
+export { Server } from "./src/server/server";

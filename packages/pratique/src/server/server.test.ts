@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, mock, test } from "bun:test";
 import { Server } from "./server";
-import type { Handler, Middleware } from "./types";
+import type { Handler, Middleware } from "../types";
 
 describe("Server", () => {
 	let server: Server;

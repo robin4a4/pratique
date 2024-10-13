@@ -1,5 +1,5 @@
-import { match } from "./router/match";
-import type { Handler, Middleware, ServerOptions } from "./types";
+import { match } from "../router/match";
+import type { Handler, Middleware, ServerOptions } from "../types";
 
 type HttpMethod = "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
 

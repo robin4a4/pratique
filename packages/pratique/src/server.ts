@@ -5,7 +5,7 @@ type HttpMethod = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
 
 export class Server {
     private handlers: Map<HttpMethod, Map<string, Handler<string>>> = new Map();
-    private middlewares: Handler<string>[] = [];
+    private middlewares: Middleware<string>[] = [];
     constructor() {
         this.handlers.set('GET', new Map());
         this.handlers.set('POST', new Map());
@@ -50,7 +50,7 @@ export class Server {
         this.addHandler('DELETE', path, ...handlers);
     }
 
-    use(middleware: Handler<string>) {
+    use(middleware: Middleware<string>) {
         this.middlewares.push(middleware);
     }
 

@@ -2,7 +2,11 @@
   "name": "pratique-workspace",
   "module": "index.ts",
   "type": "module",
+  "scripts": {
+    "lint": "biome check --write packages/*"
+  },
   "devDependencies": {
+    "@biomejs/biome": "1.9.3",
     "@types/bun": "latest"
   },
   "peerDependencies": {

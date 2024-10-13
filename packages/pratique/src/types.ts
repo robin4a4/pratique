@@ -17,10 +17,11 @@ export type ContextParams<TPath extends string> = Record<ExtractPathParams<TPath
 
 export type Context<TPath extends string> = {
     request: Request;
-    params: ContextParams<TPath>;
     queryParams: URLSearchParams;
+    params?: ContextParams<TPath>;
 }
 
+export type Middleware<TPath extends string> = (context: Context<TPath>) => void;
 export type Handler<TPath extends string> = (context: Context<TPath>) => Response;
 
 export type ServerOptions = {

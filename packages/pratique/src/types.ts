@@ -21,7 +21,7 @@ export type ContextParams<TPath extends string> = Record<
 
 export type Context<TPath extends string> = {
 	request: Request;
-	queryParams: URLSearchParams;
+	searchParams: URLSearchParams;
 	params?: ContextParams<TPath>;
 };
 
@@ -35,3 +35,16 @@ export type Handler<TPath extends string> = (
 export type ServerOptions = {
 	port: number;
 };
+
+export type ClientOptions = {
+    baseUrl?: string;
+  };
+
+export type InferResponseType<T extends (...args: any) => Promise<ResponseType>, Status extends number = number> =
+T extends (...args: any) => Promise<infer R>
+    ? R extends { json: () => Promise<infer J> }
+    ? Status extends R['status']
+        ? J
+        : never
+    : never
+    : never;

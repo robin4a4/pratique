@@ -131,7 +131,7 @@ describe("Server", () => {
 		expect(passedContext).toBeDefined();
 		expect(passedContext.request).toBeDefined();
 		expect(passedContext.params).toEqual({ id: "123" });
-		expect(passedContext.queryParams.get("query")).toBe("value");
+		expect(passedContext.searchParams.get("query")).toBe("value");
 	});
 
 	test("start method calls Bun.serve with correct options", () => {

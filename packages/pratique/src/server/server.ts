@@ -73,7 +73,7 @@ export class Server {
 		for (const middleware of this.middlewares) {
 			middleware({
 				request: req,
-				queryParams: new URLSearchParams(req.url.split("?")[1]),
+				searchParams: new URLSearchParams(req.url.split("?")[1]),
 			});
 		}
 	}
@@ -99,7 +99,7 @@ export class Server {
 				params: Object.fromEntries(
 					pathMatch.params.map((param) => [param.name, param.value]),
 				),
-				queryParams: new URLSearchParams(req.url.split("?")[1]),
+				searchParams: new URLSearchParams(req.url.split("?")[1]),
 			};
 
 			const handler = methodHandlers.get(pathMatch.path);

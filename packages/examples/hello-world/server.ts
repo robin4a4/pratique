@@ -1,10 +1,14 @@
-import { Server } from "pratique";
+import { Server } from "pratique/server";
 
 const server = new Server();
 
 server.get("/", () => new Response("Hello, root!"));
 
 server.get("/hello", () => new Response("Hello, hello!"));
+
+server.get("/hello/:id", ({ params }) => {
+    return new Response(`Hello, hello ${params?.id}!`);
+});
 
 server.get("/:name", ({ params }) => {
 	return new Response(`Hello, never ${params?.name}!`);

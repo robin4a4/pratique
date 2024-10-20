@@ -146,11 +146,15 @@ export class Server {
 	start({ port }: ServerOptions) {
 		Bun.serve({
 			port: port ?? 3000,
-			fetch: (req) => {
+			fetch: async (req) => {
 				if (this.middlewares.length > 0) {
 					this.applyMiddlewares(req);
 				}
-				const context = this.handleRequest(req);
+				const response = this.handleRequest(req);
+                let context;
+                if (response instanceof Promise) {
+                    context = await response;
+                }
                 if (context instanceof Response) {
                     return context
                 }

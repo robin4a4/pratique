@@ -6,7 +6,7 @@ server.get("/", () => new Response("Hello, root!"));
 
 server.get("/hello", () => new Response("Hello, hello!"));
 
-server.get("/hello/:id", ({ params }) => {
+server.get("/hello/:id", async ({ params }) => {
     return { message: `Hello, test ${params?.id}!` }
 });
 

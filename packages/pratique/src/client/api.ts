@@ -9,10 +9,9 @@ type RequestOptions = {
 };
 
 // Structure of the response we'll return
-type ResponseType = {
-  status: number;
-  ok: boolean;
-  json: () => Promise<any>;
+type ResponseType<T = any> = {
+  data: T | null;
+  error: Error | null;
 };
 
 function concatenateUrl(baseUrl: string, path: string) {
@@ -33,41 +32,59 @@ function concatenateUrl(baseUrl: string, path: string) {
  */
 function createHttpMethod(baseUrl: string, path: string, method: HttpMethod) {
   return async (options: RequestOptions = {}): Promise<ResponseType> => {
-    // Construct the full URL
-    let fullPath = concatenateUrl(baseUrl, path);
+    try {
+      // Construct the full URL
+      let fullPath = concatenateUrl(baseUrl, path);
 
-    // Replace path parameters if any
-    if (options.params) {
-      for (const [key, value] of Object.entries(options.params)) {
-        fullPath = fullPath.replace(`:${key}`, encodeURIComponent(value));
+      // Replace path parameters if any
+      if (options.params) {
+        for (const [key, value] of Object.entries(options.params)) {
+          fullPath = fullPath.replace(`:${key}`, encodeURIComponent(value));
+        }
       }
-    }
 
-    // Construct the URL object after replacing path parameters
-    let url = new URL(fullPath);
+      // Construct the URL object after replacing path parameters
+      let url = new URL(fullPath);
 
-    // Add query parameters if any
-    if (options.query) {
-      for (const [key, value] of Object.entries(options.query)) {
-        url.searchParams.append(key, value);
+      // Add query parameters if any
+      if (options.query) {
+        for (const [key, value] of Object.entries(options.query)) {
+          url.searchParams.append(key, value);
+        }
       }
+
+      // Make the fetch request
+      const response = await fetch(url.toString(), {
+        method: method.toUpperCase(),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: options.body ? JSON.stringify(options.body) : undefined,
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      let data;
+      try {
+        data = await response.json();
+      } catch (error) {
+        data = await response.text();
+      }
+
+      // Return a standardized response object
+      return {
+        data,
+        error: null,
+      };
+    } catch (error) {
+        console.log("error", error);
+      return {
+        data: null,
+        error: error instanceof Error ? error : new Error('An unknown error occurred'),
+      };
     }
-
-    // Make the fetch request
-    const response = await fetch(url.toString(), {
-      method: method.toUpperCase(),
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: options.body ? JSON.stringify(options.body) : undefined,
-    });
-
-    // Return a standardized response object
-    return {
-      status: response.status,
-      ok: response.ok,
-      json: () => response.json(),
-    };
   };
 }
 
@@ -80,7 +97,6 @@ function createHttpMethod(baseUrl: string, path: string, method: HttpMethod) {
 function createApiProxy(baseUrl: string, path: string = ''): any {
   const handler = {
     get(target: any, prop: string) {
-      console.log('get', target, prop, path);
       if (['get', 'post', 'put', 'patch', 'delete'].includes(prop)) {
         return createHttpMethod(baseUrl, path, prop as HttpMethod);
       }
@@ -90,13 +106,10 @@ function createApiProxy(baseUrl: string, path: string = ''): any {
       return createApiProxy(baseUrl, `${path}/${prop}`);
     },
     apply(target: any, thisArg: any, args: any[]) {
-      console.log('apply', target, thisArg, args);
       const params = args[0] || {};
       let newPath = path;
-      console.log("path", path, params);
       const paramValues = Object.values(params);
       newPath = [newPath, ...paramValues].filter(Boolean).join('/');
-      console.log("newPath", newPath);
       return createApiProxy(baseUrl, newPath);
     }
   };

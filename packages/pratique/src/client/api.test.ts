@@ -47,67 +47,43 @@ describe("createApi", () => {
   const api = createApi<any>("localhost:3000");
 
   test("GET request to root path", async () => {
-    const { status, ok, json } = await api.index.get();
+    const { data } = await api.index.get();
 
-    expect(status).toBe(200);
-    expect(ok).toBe(true);
-
-    const data = await json();
     expect(data).toEqual({ message: "Welcome to the API" });
   });
 
   test("GET request to root path with path parameter", async () => {
-    const { status, ok, json } = await api.index({ id: 123 }).get();
+    const { data } = await api.index({ id: 123 }).get();
 
-    expect(status).toBe(200);
-    expect(ok).toBe(true);
-
-    const data = await json();
     expect(data).toEqual({ message: "Welcome to the API :id" });
   });
 
   test("GET request to transformers path", async () => {
-    const { status, ok, json } = await api.transformers.get();
+    const { data } = await api.transformers.get();
 
-    expect(status).toBe(200);
-    expect(ok).toBe(true);
-
-    const data = await json();
     expect(data).toEqual({ message: "Welcome to the transformers API" });
   });
 
   test("GET request with path parameter", async () => {
-    const { status, ok, json } = await api.robot({ id: 123 }).get();
+    const { data } = await api.robot({ id: 123 }).get();
 
-    expect(status).toBe(201);
-    expect(ok).toBe(true);
-
-    const data = await json();
     expect(data).toEqual({ id: 123, name: "optimus prime", from: "transformers" });
   });
 
   test("POST request with path parameter", async () => {
-    const { status, ok, json } = await api.robot({ id: 123 }).post({
+    const { data } = await api.robot({ id: 123 }).post({
       name: "optimus prime",
       from: "transformers",
     });
 
-    expect(status).toBe(201);
-    expect(ok).toBe(true);
-
-    const data = await json();
     expect(data).toEqual({ id: 123, name: "optimus prime", from: "transformers" });
   });
 
   test("POST request with path parameter", async () => {
-    const { status, ok, json } = await api.super.robot({ id: 1234 }).post({
+    const { data } = await api.super.robot({ id: 1234 }).post({
       name: "megatron",
       from: "transformers",
     });
-    expect(status).toBe(201);
-    expect(ok).toBe(true);
-
-    const data = await json();
     expect(data).toEqual({ id: 1234, name: "megatron", from: "transformers" });
   });
 });

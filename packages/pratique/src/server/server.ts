@@ -1,5 +1,5 @@
 import { match } from "../router/match";
-import type { Handler, Middleware, ServerOptions } from "../types";
+import type { Handler, Middleware, ResponseType, ServerOptions } from "../types";
 
 type HttpMethod = "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
 
@@ -78,7 +78,7 @@ export class Server {
 		}
 	}
 
-	private handleRequest(req: Request): Response {
+	private handleRequest(req: Request): ResponseType {
 		const pathWithDomain = req.url.split("?")[0];
 		const path = pathWithDomain.replace("http://localhost:3000", "");
 		const method = req.method as HttpMethod;
@@ -151,7 +151,20 @@ export class Server {
 					this.applyMiddlewares(req);
 				}
 				const context = this.handleRequest(req);
-				return context;
+                if (context instanceof Response) {
+                    return context
+                }
+                if (typeof context === "string") {
+                    return new Response(context);
+                }
+                if (typeof context === "object") {
+                    return new Response(JSON.stringify(context), {
+                        headers: {
+                            "Content-Type": "application/json",
+                        },
+                    });
+                }
+                return new Response(context);
 			},
 		});
 	}

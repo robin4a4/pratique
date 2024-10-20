@@ -28,9 +28,12 @@ export type Context<TPath extends string> = {
 export type Middleware<TPath extends string> = (
 	context: Context<TPath>,
 ) => void;
+
+export type ResponseType = Response | string | object;
+
 export type Handler<TPath extends string> = (
 	context: Context<TPath>,
-) => Response;
+) => ResponseType | Promise<ResponseType>;
 
 export type ServerOptions = {
 	port: number;
@@ -39,12 +42,3 @@ export type ServerOptions = {
 export type ClientOptions = {
     baseUrl?: string;
   };
-
-export type InferResponseType<T extends (...args: any) => Promise<ResponseType>, Status extends number = number> =
-T extends (...args: any) => Promise<infer R>
-    ? R extends { json: () => Promise<infer J> }
-    ? Status extends R['status']
-        ? J
-        : never
-    : never
-    : never;

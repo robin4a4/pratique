@@ -69,23 +69,55 @@ describe("Server", () => {
 		expect(addedHandler).toBeDefined();
 	});
 
-	test("handleRequest returns correct response for existing route", async () => {
+	test("handleRequest returns correct response for existing route with Response", async () => {
 		const handler: Handler<"/test"> = () => new Response("Test Response");
 		server.get("/test", handler);
 
 		const request = new Request("http://localhost:3000/test");
 		const response = await server["handleRequest"](request);
 
-		expect(response.status).toBe(200);
-		expect(await response.text()).toBe("Test Response");
+		expect(response instanceof Response).toBe(true);
+		if (response instanceof Response) {
+			expect(response.status).toBe(200);
+			expect(await response.text()).toBe("Test Response");
+		}
+	});
+
+	test("handleRequest returns correct response for existing route with string", async () => {
+		const handler: Handler<"/test"> = () => "Test Response";
+		server.get("/test", handler);
+
+		const request = new Request("http://localhost:3000/test");
+		const response = await server["handleRequest"](request);
+
+		expect(response instanceof Response).toBe(false);
+		if (typeof response === "string") {
+			expect(response).toBe("Test Response");
+		}
+	});
+
+	test("handleRequest returns correct response for existing route with object", async () => {
+		const handler: Handler<"/test"> = () => ({ message: "Test Response" });
+		server.get("/test", handler);
+
+		const request = new Request("http://localhost:3000/test");
+		const response = await server["handleRequest"](request);
+
+		expect(response instanceof Response).toBe(false);
+		if (typeof response === "object") {
+			expect(response.message).toBe("Test Response");
+		}
 	});
 
 	test("handleRequest returns 404 for non-existent route", async () => {
 		const request = new Request("http://localhost:3000/non-existent");
 		const response = await server["handleRequest"](request);
 
-		expect(response.status).toBe(404);
-		expect(await response.text()).toBe("Not found");
+		expect(response instanceof Response).toBe(true);
+		if (response instanceof Response) {
+			expect(response.status).toBe(404);
+			expect(await response.text()).toBe("Not found");
+		}
 	});
 
 	test("handleRequest returns 405 for unsupported method", async () => {
@@ -94,8 +126,11 @@ describe("Server", () => {
 		});
 		const response = await server["handleRequest"](request);
 
-		expect(response.status).toBe(405);
-		expect(await response.text()).toBe("Method not allowed");
+		expect(response instanceof Response).toBe(true);
+		if (response instanceof Response) {
+			expect(response.status).toBe(405);
+			expect(await response.text()).toBe("Method not allowed");
+		}
 	});
 
 	test("handleRequest executes middleware before handler", async () => {

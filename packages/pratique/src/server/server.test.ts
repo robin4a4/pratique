@@ -187,4 +187,40 @@ describe("Server", () => {
 		// @ts-ignore: Restoring the original Bun.serve
 		Bun.serve = originalServe;
 	});
+
+    describe("generateApiStructure", () => {
+        test("generates correct API structure", () => {
+
+            server.get("/test1", () => ({test: "test"}));
+            server.post("/test1", () => ({test: "test"}));
+
+            server.get("/test2/nested", () => ({nestedTest: "nestedTest"}));
+            server.post("/test2/nested", () => ({nestedTest: "nestedTest"}));
+
+            server.get("/test3/:id", ({params}) => ({id: params?.id}));
+            server.post("/test3/:id", ({params}) => ({id: params?.id}));
+
+            server.get("/test4/:id/nested/:nestedId", ({params}) => ({id: params?.id, nestedId: params?.nestedId}));
+            server.post("/test4/:id/nested/:nestedId", ({params}) => ({id: params?.id, nestedId: params?.nestedId}));
+
+            const structure = server.generateApiStructure() as any
+            console.log(structure);
+            expect(structure).toEqual({
+                test1: {
+                    get: () => {},
+                    post: () => {},
+                },
+                test2: {
+                    nested: {
+                        get: () => {},
+                        post: () => {},
+                    },
+                },
+                test3: ({id}: {id: string}) => ({
+                    get: () => {},
+                    post: () => {},
+                }),
+            });
+        });
+    });
 });

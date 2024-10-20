@@ -111,37 +111,46 @@ export class Server {
 		return new Response("Not found", { status: 404, statusText: "Not Found" });
 	}
 
-	// getRouteStructure() {
-	// 	const structure: any = {};
+	generateApiStructure() {
+        const structure: Record<string, any> = {};
 
-	// 	for (const [method, handlers] of this.handlers.entries()) {
-	// 		for (const [path, handler] of handlers.entries()) {
-	// 			const parts = path.split('/').filter(Boolean);
-	// 			let current = structure;
+        for (const [method, handlers] of this.handlers.entries()) {
+            for (const [path, handler] of handlers.entries()) {
+                const parts = path.split('/').filter(Boolean);
+                console.log(parts);
+                let current = structure;
 
-	// 			parts.forEach((part, index) => {
-	// 				if (!current[part]) {
-	// 					current[part] = {};
-	// 				}
-	// 				current = current[part];
+                parts.forEach((part, index) => {
+                    if (part.startsWith(':')) {
+                        // Handle dynamic segments
+                        if (index === parts.length - 1) {
+                            // Last part, create a function
+                            current[part] = (params: Record<string, string>) => ({
+                                [method.toLowerCase()]: () => {}
+                            });
+                        } else {
+                            // Not the last part, continue building the structure
+                            if (!(part in current)) {
+                                current[part] = {};
+                            }
+                            current = current[part];
+                        }
+                    } else {
+                        if (!(part in current)) {
+                            current[part] = {};
+                        }
+                        current = current[part];
+                    }
+                });
+                console.log("CURRENT", current);
+                if (typeof current === 'object') {
+                    current[method.toLowerCase()] = () => {};
+                }
+            }
+        }
 
-	// 				if (index === parts.length - 1) {
-	// 					if (!current[method.toLowerCase()]) {
-	// 						current[method.toLowerCase()] = handler.toString();
-	// 					}
-	// 				}
-	// 			});
-
-	// 			// Handle root path
-	// 			if (path === '/') {
-	// 				structure.root = structure.root || {};
-	// 				structure.root[method.toLowerCase()] = handler.toString();
-	// 			}
-	// 		}
-	// 	}
-
-	// 	return structure;
-	// }
+        return structure;
+    }
 
 	start({ port }: ServerOptions) {
 		Bun.serve({
@@ -171,5 +180,6 @@ export class Server {
                 return new Response(context);
 			},
 		});
+        return this.generateApiStructure();
 	}
 }

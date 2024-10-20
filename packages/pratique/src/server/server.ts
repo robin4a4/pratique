@@ -111,6 +111,38 @@ export class Server {
 		return new Response("Not found", { status: 404, statusText: "Not Found" });
 	}
 
+	// getRouteStructure() {
+	// 	const structure: any = {};
+
+	// 	for (const [method, handlers] of this.handlers.entries()) {
+	// 		for (const [path, handler] of handlers.entries()) {
+	// 			const parts = path.split('/').filter(Boolean);
+	// 			let current = structure;
+
+	// 			parts.forEach((part, index) => {
+	// 				if (!current[part]) {
+	// 					current[part] = {};
+	// 				}
+	// 				current = current[part];
+
+	// 				if (index === parts.length - 1) {
+	// 					if (!current[method.toLowerCase()]) {
+	// 						current[method.toLowerCase()] = handler.toString();
+	// 					}
+	// 				}
+	// 			});
+
+	// 			// Handle root path
+	// 			if (path === '/') {
+	// 				structure.root = structure.root || {};
+	// 				structure.root[method.toLowerCase()] = handler.toString();
+	// 			}
+	// 		}
+	// 	}
+
+	// 	return structure;
+	// }
+
 	start({ port }: ServerOptions) {
 		Bun.serve({
 			port: port ?? 3000,
